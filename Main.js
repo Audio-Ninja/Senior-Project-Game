@@ -7,7 +7,9 @@ surfaceImg.src = "RockSurface.png";
 let surface2Img = new Image();
 surface2Img.src = "RockSurf2.png";
 let botImage = new Image();
-botImage.src = "Robot_Warrior.png";
+botImage.src = "Warrior_Red.png";
+let buttonImage = new Image();
+buttonImage.src = "Zoom_buttons.svg";
 let mapRows = 5, mapCols = 10;
 let test;
 let map = [];
@@ -31,14 +33,15 @@ function gameLoop() {
     }
     for(let i = 0; i < mapRows; i++) {
         for(let n = 0; n < mapCols; n++) {
-            createImage(map[iter], 80 * n * camZ + camX, 80 * i * camZ + camY);
+            createImage(map[iter], 80 * n * camZ + camX, 80 * i * camZ + camY, camZ);
             iter++;
         }
     }
+    createImage(buttonImage, canvas.width - 70, canvas.height - 130, 2.5);
 }
 
-function createImage(img, x, y) {
-    c.drawImage(img, 0, 0, img.width, img.height, x, y, img.width * camZ, img.height * camZ);
+function createImage(img, x, y, size) {
+    c.drawImage(img, 0, 0, img.width, img.height, x, y, img.width * size, img.height * size);
 }
 
 gameLoop();
@@ -51,6 +54,16 @@ canvas.addEventListener('mousedown', (e) => {
     clicking = true;
     clickX = e.clientX - 8;
     clickY = e.clientY - 80;
+    console.log(clickX + " , " + clickY)
+    if(clickX > canvas.width - 70 && clickX < canvas.width - 18) {
+        if(camZ != 4.5 && clickY > canvas.height - 130 && clickY < canvas.height - 78) {
+            camZ += 0.5;
+        }
+        
+        if(camZ != 0.5 && clickY > canvas.height - 70 && clickY < canvas.height - 22) {
+            camZ -= 0.5;
+        }
+    }
 })
 window.addEventListener('mouseup', () => {
     clicking = false;
