@@ -2,9 +2,31 @@
 <html>
 <head>
     <title>Strategy Game</title>
+    <style>
+        canvas {
+            display: block;
+        }
+        body {
+            background-color: #444;
+            margin-left: 25px;
+            user-select: none;
+        }
+        h1, p {
+            font-family: sans-serif;
+            color: white;
+            text-shadow: 0 0 15px #000000;
+        }
+    </style>
 </head>
 <body>
     <h1>Strategy Game</h1>
+    <p>Canvas width and height:</p>
+    <br>
+    <input value=1000 id="width">
+    <input value=600 id="height">
+    <button onclick="changeCanvas()">Change</button>
+    <br>
+    <br>
     <canvas></canvas>
     <script src="Main.js"></script>
 </body>

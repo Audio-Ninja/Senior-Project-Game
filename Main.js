@@ -23,6 +23,11 @@ for(let i = 0; i < mapRows * mapCols; i++) {
     }
 }
 
+function changeCanvas() {
+    canvas.width = document.getElementById("width").value;
+    canvas.height = document.getElementById("height").value;   
+}
+
 function gameLoop() {
     window.requestAnimationFrame(gameLoop);
     c.fillRect(0,0,canvas.width,canvas.height);
@@ -52,9 +57,8 @@ canvas.addEventListener('mousemove', (e) => {
 })
 canvas.addEventListener('mousedown', (e) => {
     clicking = true;
-    clickX = e.clientX - 8;
-    clickY = e.clientY - 80;
-    console.log(clickX + " , " + clickY)
+    clickX = e.clientX - 25;
+    clickY = e.clientY - 171;
     if(clickX > canvas.width - 70 && clickX < canvas.width - 18) {
         if(camZ != 4.5 && clickY > canvas.height - 130 && clickY < canvas.height - 78) {
             camZ += 0.5;
