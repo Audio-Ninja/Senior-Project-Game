@@ -15,7 +15,7 @@ buttonImage.src = "Zoom_buttons.svg";
 let mapRows = 5, mapCols = 10;
 let test;
 let map = [];
-let redWarriors = [1,4,3, 2,2,2];
+let redWarriors = [1,4,4, 2,2,2];
 let blueWarriors = [1,5,3];
 let iter, clicking = true, clickX, clickY, mouseX, mouseY, dispX = 0, dispY = 0;
 let camX = 0, camY = 0, camZ = 1;
@@ -66,13 +66,20 @@ function gameLoop() {
                         let open = isSpotOpen(checkSpots[r+1], checkSpots[r], redWarriors[i+1], redWarriors[i], moveOptions);
                         if(open == true) {
                             temp.push(checkSpots[r], checkSpots[r+1]);
-                            moveOptions.push(checkSpots[r], checkSpots[r+1]);
+                            for(let g = 0; g < redWarriors.length; g+=3) {
+                                if(checkSpots[r] == redWarriors[g] && checkSpots[r+1] == redWarriors[g+1]) {
+                                    open = false;
+                                }
+                            }
+                            if(open == true) {
+                               moveOptions.push(checkSpots[r], checkSpots[r+1]); 
+                            }
+                            
                         }
                     }
                     checkSpots = temp;
                     temp = [];
                 }
-                console.log(moveOptions);
                 for(let w = 0; w < moveOptions.length; w+=2) {
                     c.fillRect(80 * moveOptions[w+1] * camZ + camX, 80 * moveOptions[w] * camZ + camY, 80 * camZ, 80 * camZ);
                 } 
@@ -93,6 +100,9 @@ function createImage(img, x, y, size) {
 
 function isSpotOpen(spotX, spotY, unitX, unitY, spotsList) {
     let value = true;
+    if(spotX < 0 || spotY < 0 || spotX > mapCols - 1 || spotY > mapRows - 1) {
+        return false;
+    }
     if(spotY == unitY && spotX == unitX) {
         return false;
     }
