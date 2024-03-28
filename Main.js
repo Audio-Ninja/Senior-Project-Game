@@ -12,12 +12,12 @@ let warriorBlue = new Image();
 warriorBlue.src = "Warrior_Blue.png";
 let buttonImage = new Image();
 buttonImage.src = "Zoom_buttons.svg";
-let mapRows = 5, mapCols = 10;
+let mapRows = 10, mapCols = 15;
 let test;
 let map = [];
-let redWarriors = [1,4,4, 2,2,2];
+let redWarriors = [2,5,4, 4,3,2];
 let blueWarriors = [1,5,3];
-let iter, clicking = true, clickX, clickY, mouseX, mouseY, dispX = 0, dispY = 0;
+let iter, clicking = true, clickX, clickY, mouseX, mouseY, dispX = 0, dispY = 0, mouseMoving, prevX = 5, prevY = 5;
 let camX = 0, camY = 0, camZ = 1;
 for(let i = 0; i < mapRows * mapCols; i++) {
     if(Math.floor(Math.random() * 2) == 0) {
@@ -34,6 +34,14 @@ function changeCanvas() {
 
 function gameLoop() {
     window.requestAnimationFrame(gameLoop);
+    if(prevX == mouseX && prevY == mouseY) {
+        mouseMoving = false;
+    } else {
+        mouseMoving = true;
+    }
+    prevX = mouseX;
+    prevY = mouseY;
+    console.log(mouseMoving);
     if(clicking == true) {
         camX = dispX + mouseX - clickX;
         camY = dispY + mouseY - clickY;
@@ -49,7 +57,6 @@ function gameLoop() {
         }
         for(let i = 0; i < redWarriors.length; i+=3) {
             if(i == 0) {
-                c.fillStyle = "hsl(0, 0%, 90%, 0.2)";
                 let moveOptions = [];
                 let checkSpots = [redWarriors[i], redWarriors[i+1]];
                 let temp = [];
@@ -81,6 +88,12 @@ function gameLoop() {
                     temp = [];
                 }
                 for(let w = 0; w < moveOptions.length; w+=2) {
+                    if(clickX > moveOptions[w+1] * 80 * camZ + camX && clickY > moveOptions[w] * 80 * camZ + camY && mouseMoving == false &&
+                        clickX < (moveOptions[w+1] * 80 * camZ + camX) + 80 * camZ && clickY < (moveOptions[w] * 80 * camZ + camY) + 80 * camZ) {
+                        c.fillStyle = "hsl(0, 0%, 90%, 0.4)";
+                    } else {
+                        c.fillStyle = "hsl(0, 0%, 90%, 0.2)";
+                    }
                     c.fillRect(80 * moveOptions[w+1] * camZ + camX, 80 * moveOptions[w] * camZ + camY, 80 * camZ, 80 * camZ);
                 } 
             }
@@ -124,7 +137,7 @@ gameLoop();
 canvas.addEventListener('mousemove', (e) => {
     mouseX = e.clientX - 25;
     mouseY = e.clientY - 171;
-})
+});
 canvas.addEventListener('mousedown', (e) => {
     clicking = true;
     clickX = e.clientX - 25;
@@ -138,9 +151,9 @@ canvas.addEventListener('mousedown', (e) => {
             camZ -= 0.5;
         }
     }
-})
+});
 window.addEventListener('mouseup', () => {
     clicking = false;
     dispX += mouseX - clickX;
     dispY += mouseY - clickY;
-})
+});
