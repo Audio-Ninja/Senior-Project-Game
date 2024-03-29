@@ -17,7 +17,7 @@ let test;
 let map = [];
 let redWarriors = [2,5,4, 4,3,2];
 let blueWarriors = [1,5,3];
-let iter, clicking = true, clickX, clickY, mouseX, mouseY, dispX = 0, dispY = 0, mouseMoving, prevX = 5, prevY = 5;
+let iter, clicking = true, clickX, clickY, mouseX, mouseY, dispX = 0, dispY = 0, selectedRow, selectedCol;
 let camX = 0, camY = 0, camZ = 1;
 for(let i = 0; i < mapRows * mapCols; i++) {
     if(Math.floor(Math.random() * 2) == 0) {
@@ -34,14 +34,6 @@ function changeCanvas() {
 
 function gameLoop() {
     window.requestAnimationFrame(gameLoop);
-    if(prevX == mouseX && prevY == mouseY) {
-        mouseMoving = false;
-    } else {
-        mouseMoving = true;
-    }
-    prevX = mouseX;
-    prevY = mouseY;
-    console.log(mouseMoving);
     if(clicking == true) {
         camX = dispX + mouseX - clickX;
         camY = dispY + mouseY - clickY;
@@ -60,6 +52,7 @@ function gameLoop() {
                 let moveOptions = [];
                 let checkSpots = [redWarriors[i], redWarriors[i+1]];
                 let temp = [];
+                let path = [];
                 for(let m = 0; m < redWarriors[i+2]; m++) {
                     for(let r = 0; r < checkSpots.length; r+=2) {
                         temp.push(checkSpots[r] + 1, checkSpots[r+1]);
@@ -79,23 +72,65 @@ function gameLoop() {
                                 }
                             }
                             if(open == true) {
-                               moveOptions.push(checkSpots[r], checkSpots[r+1]); 
+                               moveOptions.push(checkSpots[r], checkSpots[r+1]);
                             }
                             
                         }
                     }
                     checkSpots = temp;
                     temp = [];
+                    if(m != redWarriors[i+2] - 1) {
+                        moveOptions.push("br", "br");
+                    }
                 }
                 for(let w = 0; w < moveOptions.length; w+=2) {
-                    if(clickX > moveOptions[w+1] * 80 * camZ + camX && clickY > moveOptions[w] * 80 * camZ + camY && mouseMoving == false &&
-                        clickX < (moveOptions[w+1] * 80 * camZ + camX) + 80 * camZ && clickY < (moveOptions[w] * 80 * camZ + camY) + 80 * camZ) {
-                        c.fillStyle = "hsl(0, 0%, 90%, 0.4)";
-                    } else {
-                        c.fillStyle = "hsl(0, 0%, 90%, 0.2)";
+                    if(moveOptions[w] != "br") {
+                        if(mouseX > moveOptions[w+1] * 80 * camZ + camX && mouseY > moveOptions[w] * 80 * camZ + camY &&
+                            mouseX < (moveOptions[w+1] * 80 * camZ + camX) + 80 * camZ && mouseY < (moveOptions[w] * 80 * camZ + camY) + 80 * camZ) {
+                            selectedRow = moveOptions[w];
+                            selectedCol = moveOptions[w+1];
+                        }
                     }
-                    c.fillRect(80 * moveOptions[w+1] * camZ + camX, 80 * moveOptions[w] * camZ + camY, 80 * camZ, 80 * camZ);
+                }
+                let nextRow = selectedRow, nextCol = selectedCol;
+                path.unshift(nextRow, nextCol);
+                if(redWarriors[i+2] != 1) {
+                    let section = 1;
+                    let currentSection = 0;
+                    for(let f = 0; f < moveOptions.length; f+=2) {
+                        if(moveOptions[f] == "br" && currentSection == 0) {
+                            section++;
+                        } else if(moveOptions[f] == selectedRow && moveOptions[f+1] == selectedCol) {
+                            currentSection = 1;
+                        }
+                    }
+                    currentSection = redWarriors[i+2];
+                    if(section != 1) {
+                        for(let f = moveOptions.length - 1; f > -1; f-=2) {
+                            if(moveOptions[f] == "br") {
+                                currentSection--;
+                            } else if(currentSection < section) {
+                                if(Math.abs(nextRow - moveOptions[f-1]) == 1 && Math.abs(nextCol - moveOptions[f]) == 0 ||
+                                Math.abs(nextCol - moveOptions[f]) == 1 && Math.abs(nextRow - moveOptions[f-1]) == 0 ) {
+                                    nextRow = moveOptions[f-1];
+                                    nextCol = moveOptions[f];
+                                    path.unshift(nextRow, nextCol);
+                                } 
+                            }
+                        }
+                    }
+                     
                 } 
+                for(let w = 0; w < moveOptions.length; w+=2) {
+                    if(moveOptions[w] != "br") {
+                        if(isPartOfPath(moveOptions[w], moveOptions[w+1], path) == true) {
+                            c.fillStyle = "hsl(0, 0%, 90%, 0.4)";
+                        } else {
+                            c.fillStyle = "hsl(0, 0%, 90%, 0.2)";
+                        }
+                        c.fillRect(80 * moveOptions[w+1] * camZ + camX, 80 * moveOptions[w] * camZ + camY, 80 * camZ, 80 * camZ);
+                    }
+                }
             }
             createImage(warriorRed, 80 * redWarriors[i+1] * camZ + camX, 80 * redWarriors[i] * camZ + camY, camZ);
         }
@@ -130,6 +165,46 @@ function isSpotOpen(spotX, spotY, unitX, unitY, spotsList) {
         }
     }
     return value;
+}
+
+function findPath(row, col, list, listB, speed) {
+    let nextRow = row, nextCol = col;
+    listB.unshift(nextRow, nextCol);
+    if(speed != 1) {
+        let section = 1;
+        let currentSection = 0;
+        for(let f = 0; f < list.length; f+=2) {
+            if(list[f] == "br" && currentSection == 0) {
+                section++;
+            } else if(list[f] == row && list[f+1] == col) {
+                currentSection = 1;
+            }
+        }
+        currentSection = speed;
+        if(section != 1) {
+            for(let f = list.length - 1; f > -1; f-=2) {
+                if(list[f] == "br") {
+                    currentSection--;
+                } else if(currentSection < section) {
+                    if(Math.abs(nextRow - list[f-1]) == 1 && Math.abs(nextCol - list[f]) == 1) {
+                        nextRow = list[f-1];
+                        nextCol = list[f];
+                        listB.unshift(nextRow, nextCol);
+                    } 
+                }
+            }
+        }
+         
+    }
+}
+
+function isPartOfPath(row, col, list) {
+    for(let i = 0; i < list.length; i+=2) {
+        if(list[i] == row && list[i+1] == col) {
+            return true;
+        }
+    }
+    return false;
 }
 
 gameLoop();
