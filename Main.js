@@ -15,9 +15,10 @@ buttonImage.src = "Zoom_buttons.svg";
 let mapRows = 10, mapCols = 15;
 let test;
 let map = [];
-let redWarriors = [2,5,4, 4,3,2];
-let blueWarriors = [1,5,3];
-let iter, clicking = true, clickX, clickY, mouseX, mouseY, dispX = 0, dispY = 0, selectedRow, selectedCol;
+let redWarriors = [2,5,4,0,2,5, 4,3,2,0,4,3];
+let blueWarriors = [1,5,3,0];
+let iter, clicking = true, clickX, clickY, mouseX, mouseY, dispX = 0, dispY = 0;
+let selectedRow, selectedCol, prevRow = -1, prevCol = -1, animating = false;
 let camX = 0, camY = 0, camZ = 1;
 for(let i = 0; i < mapRows * mapCols; i++) {
     if(Math.floor(Math.random() * 2) == 0) {
@@ -34,10 +35,12 @@ function changeCanvas() {
 
 function gameLoop() {
     window.requestAnimationFrame(gameLoop);
-    if(clicking == true) {
-        camX = dispX + mouseX - clickX;
-        camY = dispY + mouseY - clickY;
-
+    if(clicking == true || animating == true) {
+        animating = false;
+        if(clicking == true) {
+           camX = dispX + mouseX - clickX;
+            camY = dispY + mouseY - clickY; 
+        }
         c.fillStyle = "black";
         c.fillRect(0,0,canvas.width,canvas.height);
         iter = 0;
@@ -47,10 +50,47 @@ function gameLoop() {
                 iter++;
             }
         }
-        for(let i = 0; i < redWarriors.length; i+=3) {
+        for(let i = 0; i < redWarriors.length; i+=6) {
+            if(redWarriors[i+3] != 0) {
+                animating = true;
+                let split = redWarriors[i+3].split("b");
+                split.pop();
+                for(let c = 0; c < split.length; c++) {
+                    split[c] = Number(split[c]);
+                }
+                redWarriors[i] = Number(redWarriors[i]);
+                redWarriors[i+1] = Number(redWarriors[i+1]);
+                redWarriors[i] += (split[2] - split[0]) / 10;
+                redWarriors[i+1] += (split[3] - split[1]) / 10;
+                redWarriors[i] = redWarriors[i].toFixed(2);
+                redWarriors[i+1] = redWarriors[i+1].toFixed(2);
+                if(redWarriors[i] == split[2] && redWarriors[i+1] == split[3]) {
+                    console.log(split);
+                    let del = 2;
+                    let d = 0;
+                    let toDelete = "";
+                    while(del != 0) {
+                        if(redWarriors[i+3].charAt(d) == "b") {
+                            del--;
+                        }
+                        toDelete += redWarriors[i+3].charAt(d);
+                        d++;
+                    }
+                    redWarriors[i+3] = redWarriors[i+3].replace(toDelete, "");
+                    split = redWarriors[i+3].split("b");
+                    console.log(split);
+                    if(split.length == 3) {
+                        redWarriors[i+3] = 0;
+                        redWarriors[i] = Math.round(Number(redWarriors[i]));
+                        redWarriors[i+1] = Math.round(Number(redWarriors[i+1]));
+                        redWarriors[i+4] = redWarriors[i];
+                        redWarriors[i+5] = redWarriors[i+1];
+                    }
+                }
+            }
             if(i == 0) {
                 let moveOptions = [];
-                let checkSpots = [redWarriors[i], redWarriors[i+1]];
+                let checkSpots = [redWarriors[i+4], redWarriors[i+5]];
                 let temp = [];
                 let path = [];
                 for(let m = 0; m < redWarriors[i+2]; m++) {
@@ -63,10 +103,10 @@ function gameLoop() {
                     checkSpots = temp;
                     temp = [];
                     for(let r = 0; r < checkSpots.length; r+=2) {
-                        let open = isSpotOpen(checkSpots[r+1], checkSpots[r], redWarriors[i+1], redWarriors[i], moveOptions);
+                        let open = isSpotOpen(checkSpots[r+1], checkSpots[r], redWarriors[i+5], redWarriors[i+4], moveOptions);
                         if(open == true) {
                             temp.push(checkSpots[r], checkSpots[r+1]);
-                            for(let g = 0; g < redWarriors.length; g+=3) {
+                            for(let g = 0; g < redWarriors.length; g+=6) {
                                 if(checkSpots[r] == redWarriors[g] && checkSpots[r+1] == redWarriors[g+1]) {
                                     open = false;
                                 }
@@ -131,11 +171,22 @@ function gameLoop() {
                         c.fillRect(80 * moveOptions[w+1] * camZ + camX, 80 * moveOptions[w] * camZ + camY, 80 * camZ, 80 * camZ);
                     }
                 }
+                if(prevRow == selectedRow && prevCol == selectedCol && selectedRow != -1 && redWarriors[i+3] == 0) {
+                    redWarriors[i+3] = "";
+                    redWarriors[i+3] = redWarriors[i+4] + "b" + redWarriors[i+5] + "b";
+                    for(let w = 0; w < path.length; w+=2) {
+                        redWarriors[i+3] += path[w] + "b" + path[w+1] + "b";
+                    }
+                    selectedRow = -1;
+                    selectedCol = -1;
+                    prevRow = -1;
+                    prevCol = -1;
+                }
             }
             createImage(warriorRed, 80 * redWarriors[i+1] * camZ + camX, 80 * redWarriors[i] * camZ + camY, camZ);
         }
         
-        for(let i = 0; i < blueWarriors.length; i+=3) {
+        for(let i = 0; i < blueWarriors.length; i+=6) {
             createImage(warriorBlue, 80 * blueWarriors[i+1] * camZ + camX, 80 * blueWarriors[i] * camZ + camY, camZ);
         }
         createImage(buttonImage, canvas.width - 70, canvas.height - 130, 2.5);
@@ -159,7 +210,7 @@ function isSpotOpen(spotX, spotY, unitX, unitY, spotsList) {
             return false;
         }
     }
-    for(let g = 0; g < blueWarriors.length; g+=3) {
+    for(let g = 0; g < blueWarriors.length; g+=6) {
         if(spotY == blueWarriors[g] && spotX == blueWarriors[g+1]) {
             return false;
         }
@@ -231,4 +282,8 @@ window.addEventListener('mouseup', () => {
     clicking = false;
     dispX += mouseX - clickX;
     dispY += mouseY - clickY;
+    prevRow = selectedRow;
+    prevCol = selectedCol;
+    selectedRow = -1;
+    selectedCol = -1;
 });
