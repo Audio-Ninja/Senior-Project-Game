@@ -15,10 +15,10 @@ buttonImage.src = "Zoom_buttons.svg";
 let mapRows = 10, mapCols = 15;
 let test;
 let map = [];
-let redWarriors = [2,5,4,0,2,5, 4,3,2,0,4,3];
-let blueWarriors = [1,5,3,0];
+let redWarriors = [2,5,4,0,2,5, 4,3,3,0,4,3];
+let blueWarriors = [1,5,3,0,1,5];
 let iter, clicking = true, clickX, clickY, mouseX, mouseY, dispX = 0, dispY = 0;
-let selectedRow, selectedCol, prevRow = -1, prevCol = -1, animating = false;
+let selectedRow, selectedCol, prevRow = -1, prevCol = -1, unitRow = -1, unitCol = -1, animating = false;
 let camX = 0, camY = 0, camZ = 1;
 for(let i = 0; i < mapRows * mapCols; i++) {
     if(Math.floor(Math.random() * 2) == 0) {
@@ -38,7 +38,7 @@ function gameLoop() {
     if(clicking == true || animating == true) {
         animating = false;
         if(clicking == true) {
-           camX = dispX + mouseX - clickX;
+            camX = dispX + mouseX - clickX;
             camY = dispY + mouseY - clickY; 
         }
         c.fillStyle = "black";
@@ -78,8 +78,10 @@ function gameLoop() {
                     if(split.length == 3) {
                         selectedCol = -1;
                         selectedRow = -1;
+                        prevRow = -1;
                         prevCol = -1;
-                        prevCol = -1;
+                        unitRow = -1;
+                        unitCol = -1;
                         redWarriors[i+3] = 0;
                         redWarriors[i] = Math.round(Number(redWarriors[i]));
                         redWarriors[i+1] = Math.round(Number(redWarriors[i+1]));
@@ -88,7 +90,14 @@ function gameLoop() {
                     }
                 }
             }
-            if(i == 0 && redWarriors[i+3] == 0) {
+            if(clicking == true) {
+                if(mouseX > redWarriors[i+1] * 80 * camZ + camX && mouseY > redWarriors[i] * 80 * camZ + camY &&
+                    mouseX < (redWarriors[i+1] * 80 * camZ + camX) + 80 * camZ && mouseY < (redWarriors[i] * 80 * camZ + camY) + 80 * camZ) {
+                    unitRow = redWarriors[i];
+                    unitCol = redWarriors[i+1];
+                }
+            }
+            if(redWarriors[i] == unitRow && redWarriors[i+1] == unitCol && redWarriors[i+3] == 0) {
                 let moveOptions = [];
                 let checkSpots = [redWarriors[i+4], redWarriors[i+5]];
                 let temp = [];
