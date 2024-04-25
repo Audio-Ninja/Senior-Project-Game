@@ -65,21 +65,21 @@ function gameLoop() {
                 redWarriors[i] = redWarriors[i].toFixed(2);
                 redWarriors[i+1] = redWarriors[i+1].toFixed(2);
                 if(redWarriors[i] == split[2] && redWarriors[i+1] == split[3]) {
-                    console.log(split);
                     let del = 2;
                     let d = 0;
-                    let toDelete = "";
                     while(del != 0) {
                         if(redWarriors[i+3].charAt(d) == "b") {
                             del--;
                         }
-                        toDelete += redWarriors[i+3].charAt(d);
                         d++;
                     }
-                    redWarriors[i+3] = redWarriors[i+3].replace(toDelete, "");
+                    redWarriors[i+3] = redWarriors[i+3].substr(d);
                     split = redWarriors[i+3].split("b");
-                    console.log(split);
                     if(split.length == 3) {
+                        selectedCol = -1;
+                        selectedRow = -1;
+                        prevCol = -1;
+                        prevCol = -1;
                         redWarriors[i+3] = 0;
                         redWarriors[i] = Math.round(Number(redWarriors[i]));
                         redWarriors[i+1] = Math.round(Number(redWarriors[i+1]));
@@ -88,7 +88,7 @@ function gameLoop() {
                     }
                 }
             }
-            if(i == 0) {
+            if(i == 0 && redWarriors[i+3] == 0) {
                 let moveOptions = [];
                 let checkSpots = [redWarriors[i+4], redWarriors[i+5]];
                 let temp = [];
@@ -216,37 +216,6 @@ function isSpotOpen(spotX, spotY, unitX, unitY, spotsList) {
         }
     }
     return value;
-}
-
-function findPath(row, col, list, listB, speed) {
-    let nextRow = row, nextCol = col;
-    listB.unshift(nextRow, nextCol);
-    if(speed != 1) {
-        let section = 1;
-        let currentSection = 0;
-        for(let f = 0; f < list.length; f+=2) {
-            if(list[f] == "br" && currentSection == 0) {
-                section++;
-            } else if(list[f] == row && list[f+1] == col) {
-                currentSection = 1;
-            }
-        }
-        currentSection = speed;
-        if(section != 1) {
-            for(let f = list.length - 1; f > -1; f-=2) {
-                if(list[f] == "br") {
-                    currentSection--;
-                } else if(currentSection < section) {
-                    if(Math.abs(nextRow - list[f-1]) == 1 && Math.abs(nextCol - list[f]) == 1) {
-                        nextRow = list[f-1];
-                        nextCol = list[f];
-                        listB.unshift(nextRow, nextCol);
-                    } 
-                }
-            }
-        }
-         
-    }
 }
 
 function isPartOfPath(row, col, list) {
