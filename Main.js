@@ -246,7 +246,6 @@ window.addEventListener('mousedown', (e) => {
     clicking = true;
     clickX = e.clientX - 25;
     clickY = e.clientY - 205;
-    console.log(clickY);
     if(clickX > canvas.width - 70 && clickX < canvas.width - 18) {
         if(camZ != 4.5 && clickY > canvas.height - 129 && clickY < canvas.height - 78) {
             camZ += 0.5;
