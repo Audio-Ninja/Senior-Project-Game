@@ -240,18 +240,19 @@ gameLoop();
 
 window.addEventListener('mousemove', (e) => {
     mouseX = e.clientX - 25;
-    mouseY = e.clientY - 171;
+    mouseY = e.clientY - 205;
 });
 window.addEventListener('mousedown', (e) => {
     clicking = true;
     clickX = e.clientX - 25;
-    clickY = e.clientY - 171;
+    clickY = e.clientY - 205;
+    console.log(clickY);
     if(clickX > canvas.width - 70 && clickX < canvas.width - 18) {
-        if(camZ != 4.5 && clickY > canvas.height - 96 && clickY < canvas.height - 45) {
+        if(camZ != 4.5 && clickY > canvas.height - 129 && clickY < canvas.height - 78) {
             camZ += 0.5;
         }
         
-        if(camZ != 0.5 && clickY > canvas.height - 37 && clickY < canvas.height + 13) {
+        if(camZ != 0.5 && clickY > canvas.height - 70 && clickY < canvas.height - 20) {
             camZ -= 0.5;
         }
     }
