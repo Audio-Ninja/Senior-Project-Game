@@ -16,7 +16,7 @@ let mapRows = 10, mapCols = 15;
 let test;
 let map = [];
 let redWarriors = [2,5,4,0,2,5, 4,3,3,0,4,3];
-let blueWarriors = [1,5,3,0,1,5];
+let blueWarriors = [1,5,3,0,1,5, 1,6,3,0,1,6];
 let iter, clicking = true, clickX, clickY, mouseX, mouseY, dispX = 0, dispY = 0;
 let selectedRow, selectedCol, prevRow = -1, prevCol = -1, unitRow = -1, unitCol = -1, animating = false;
 let camX = 0, camY = 0, camZ = 1;
@@ -238,20 +238,20 @@ function isPartOfPath(row, col, list) {
 
 gameLoop();
 
-canvas.addEventListener('mousemove', (e) => {
+window.addEventListener('mousemove', (e) => {
     mouseX = e.clientX - 25;
     mouseY = e.clientY - 171;
 });
-canvas.addEventListener('mousedown', (e) => {
+window.addEventListener('mousedown', (e) => {
     clicking = true;
     clickX = e.clientX - 25;
     clickY = e.clientY - 171;
     if(clickX > canvas.width - 70 && clickX < canvas.width - 18) {
-        if(camZ != 4.5 && clickY > canvas.height - 130 && clickY < canvas.height - 78) {
+        if(camZ != 4.5 && clickY > canvas.height - 96 && clickY < canvas.height - 45) {
             camZ += 0.5;
         }
         
-        if(camZ != 0.5 && clickY > canvas.height - 70 && clickY < canvas.height - 22) {
+        if(camZ != 0.5 && clickY > canvas.height - 37 && clickY < canvas.height + 13) {
             camZ -= 0.5;
         }
     }
